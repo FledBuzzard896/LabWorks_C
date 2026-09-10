@@ -1,0 +1,13 @@
+## WORKSPACE EXECUTIVE SUMMARY (YAML)
+# Generated: 2026-09-10T15:33:03.3227760+03:00
+# Root: G:\Programming\Visual_Studio_Community_Projects\LabWorks
+Architecture:
+  Type: General Codebase
+  Scale: 1 relevant source files
+  Components: 0
+  Controllers: 0
+  Models: 0
+  Services: 0
+---
+- File: LabWorks.sln
+  Preview: " Microsoft Visual Studio Solution File, Format Version 12.00 # Visual Studio Version 17 VisualStudioVersion = 17.14.37411.7 d17.14 MinimumVisualStudio..."
