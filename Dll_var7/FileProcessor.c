@@ -2,27 +2,27 @@
 #include <stdlib.h>
 
 
-// Экспортируемая функция: удаляет пробелы из inputPath, пишет в outputPath
-// Возвращает: количество удалённых пробелов (>=0) или код ошибки (<0)
+// ГќГЄГ±ГЇГ®Г°ГІГЁГ°ГіГҐГ¬Г Гї ГґГіГ­ГЄГ¶ГЁГї: ГіГ¤Г Г«ГїГҐГІ ГЇГ°Г®ГЎГҐГ«Г» ГЁГ§ inputPath, ГЇГЁГёГҐГІ Гў outputPath
+// Г‚Г®Г§ГўГ°Г Г№Г ГҐГІ: ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® ГіГ¤Г Г«ВёГ­Г­Г»Гµ ГЇГ°Г®ГЎГҐГ«Г®Гў (>=0) ГЁГ«ГЁ ГЄГ®Г¤ Г®ГёГЁГЎГЄГЁ (<0)
 __declspec(dllexport) int ProcessFile(const char* inputPath, const char* outputPath) 
 {
-	// 1. Открываем входной файл
+	// 1. ГЋГІГЄГ°Г»ГўГ ГҐГ¬ ГўГµГ®Г¤Г­Г®Г© ГґГ Г©Г«
 	HANDLE hin = CreateFileA(inputPath, GENERIC_READ, FILE_SHARE_READ, NULL,
 		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hin == INVALID_HANDLE_VALUE) return -1;
 
-	// 2. Узнаём размер
+	// 2. Г“Г§Г­Г ВёГ¬ Г°Г Г§Г¬ГҐГ°
 	DWORD size = GetFileSize(hin, NULL);
 	if (size == INVALID_FILE_SIZE) { CloseHandle(hin); return -2; }
 
-	// 3. Отобразить файл в память
+	// 3. ГЋГІГ®ГЎГ°Г Г§ГЁГІГј ГґГ Г©Г« Гў ГЇГ Г¬ГїГІГј
 	HANDLE hmap = CreateFileMappingA(hin, NULL, PAGE_READONLY, 0, 0, NULL);
 	if (!hmap) { CloseHandle(hin); return -3; }
 
 	char* src = (char*)MapViewOfFile(hmap, FILE_MAP_READ, 0, 0, 0);
 	if (!src) { CloseHandle(hmap); CloseHandle(hin); return -4; }
 
-	// 4. Обраотка файла, удаление пробелов
+	// 4. ГЋГЎГ°Г Г®ГІГЄГ  ГґГ Г©Г«Г , ГіГ¤Г Г«ГҐГ­ГЁГҐ ГЇГ°Г®ГЎГҐГ«Г®Гў
 	char* dst = (char*)malloc(size);
 	if (!dst) { UnmapViewOfFile(src); CloseHandle(hmap); CloseHandle(hin); return -5; }
 
@@ -37,7 +37,7 @@ __declspec(dllexport) int ProcessFile(const char* inputPath, const char* outputP
 	CloseHandle(hmap);
 	CloseHandle(hin);
 
-	// 5. Записать результат в выходной файл
+	// 5. Г‡Г ГЇГЁГ±Г ГІГј Г°ГҐГ§ГіГ«ГјГІГ ГІ Гў ГўГ»ГµГ®Г¤Г­Г®Г© ГґГ Г©Г«
 	HANDLE hout = CreateFileA(outputPath, GENERIC_WRITE, 0, NULL,
 		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hout == INVALID_HANDLE_VALUE) { free(dst); return -6; }
@@ -47,5 +47,5 @@ __declspec(dllexport) int ProcessFile(const char* inputPath, const char* outputP
 	free(dst);
 	CloseHandle(hout);
 
-	return removed;  // успех — сколько пробелов убрали
+	return removed;  // ГіГ±ГЇГҐГµ вЂ” Г±ГЄГ®Г«ГјГЄГ® ГЇГ°Г®ГЎГҐГ«Г®Гў ГіГЎГ°Г Г«ГЁ
 }
