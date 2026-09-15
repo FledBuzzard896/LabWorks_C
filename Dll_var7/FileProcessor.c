@@ -2,27 +2,27 @@
 #include <stdlib.h>
 
 
-// Ýêñïîðòèðóåìàÿ ôóíêöèÿ: óäàëÿåò ïðîáåëû èç inputPath, ïèøåò â outputPath
-// Âîçâðàùàåò: êîëè÷åñòâî óäàë¸ííûõ ïðîáåëîâ (>=0) èëè êîä îøèáêè (<0)
+// Экспортируемая функция: удаляет пробелы из inputPath, пишет в outputPath 
+// Возвращает: количество удал?нных пробелов (>=0) или код ошибки (<0)
 __declspec(dllexport) int ProcessFile(const char* inputPath, const char* outputPath) 
 {
-	// 1. Îòêðûâàåì âõîäíîé ôàéë
+	// 1. Открываем входной файл
 	HANDLE hin = CreateFileA(inputPath, GENERIC_READ, FILE_SHARE_READ, NULL,
 		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hin == INVALID_HANDLE_VALUE) return -1;
 
-	// 2. Óçíà¸ì ðàçìåð
+	// 2. Узнаём размер
 	DWORD size = GetFileSize(hin, NULL);
 	if (size == INVALID_FILE_SIZE) { CloseHandle(hin); return -2; }
 
-	// 3. Îòîáðàçèòü ôàéë â ïàìÿòü
+	// 3. Отобразить файл в память
 	HANDLE hmap = CreateFileMappingA(hin, NULL, PAGE_READONLY, 0, 0, NULL);
 	if (!hmap) { CloseHandle(hin); return -3; }
 
 	char* src = (char*)MapViewOfFile(hmap, FILE_MAP_READ, 0, 0, 0);
 	if (!src) { CloseHandle(hmap); CloseHandle(hin); return -4; }
 
-	// 4. Îáðàîòêà ôàéëà, óäàëåíèå ïðîáåëîâ
+	// 4. Обраотка файла, удаление пробелов
 	char* dst = (char*)malloc(size);
 	if (!dst) { UnmapViewOfFile(src); CloseHandle(hmap); CloseHandle(hin); return -5; }
 
@@ -37,7 +37,7 @@ __declspec(dllexport) int ProcessFile(const char* inputPath, const char* outputP
 	CloseHandle(hmap);
 	CloseHandle(hin);
 
-	// 5. Çàïèñàòü ðåçóëüòàò â âûõîäíîé ôàéë
+	// 5. Записать результат в выходной файл
 	HANDLE hout = CreateFileA(outputPath, GENERIC_WRITE, 0, NULL,
 		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hout == INVALID_HANDLE_VALUE) { free(dst); return -6; }
@@ -47,5 +47,5 @@ __declspec(dllexport) int ProcessFile(const char* inputPath, const char* outputP
 	free(dst);
 	CloseHandle(hout);
 
-	return removed;  // óñïåõ — ñêîëüêî ïðîáåëîâ óáðàëè
+	return removed;  // успех - сколько пробелов убрали
 }
